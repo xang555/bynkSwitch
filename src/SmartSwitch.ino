@@ -6,12 +6,31 @@
 #include <Wire.h>
 #include "Registor.h"
 
-byte ledState = 0;
-byte btnPinState1 = 0x00;
-byte btnPinState2 = 0x00;
+/************** Status Relays ****************/
+byte Status_CH1 = 0;
+byte Status_CH2 = 0;
+byte Status_CH3 = 0;
+byte Status_CH4 = 0;
 
-int lastButtonState1 = 0x00;
-int lastButtonState2 = 0x00;
+/************** Status Switches on push ****************/
+byte btnPinState_SW1_1 = 0x00;
+byte btnPinState_SW1_2 = 0x00;
+byte btnPinState_SW2_1 = 0x00;
+byte btnPinState_SW2_2 = 0x00;
+byte btnPinState_SW3_1 = 0x00;
+byte btnPinState_SW3_2 = 0x00;
+byte btnPinState_SW4_1 = 0x00;
+byte btnPinState_SW4_2 = 0x00;
+
+/************** last Status Switches ****************/
+int lastButtonState_SW1_1 = 0x00;
+int lastButtonState_SW1_2 = 0x00;
+int lastButtonState_SW2_1 = 0x00;
+int lastButtonState_SW2_2 = 0x00;
+int lastButtonState_SW3_1 = 0x00;
+int lastButtonState_SW3_2 = 0x00;
+int lastButtonState_SW4_1 = 0x00;
+int lastButtonState_SW4_2 = 0x00;
 
 byte buttonPushCounter1 = 0;
 byte buttonPushCounter2 = 0;
@@ -54,15 +73,15 @@ void setup()
 BLYNK_CONNECTED()
 {
   // Alternatively, you could override server state using:
-  Blynk.virtualWrite(V3, ledState);
+  Blynk.virtualWrite(V3, Status_CH1);
   Blynk.syncVirtual(V3);
 }
 
 BLYNK_WRITE(V3)
 { // Map this Virtual Pin to your  Mobile Blynk apps widget.
-  ledState = param.asInt();
+  Status_CH1 = param.asInt();
 
-  if (ledState == 1)
+  if (Status_CH1 == 1)
   {
     out_PUT[0] = '1';
   }
@@ -103,18 +122,18 @@ byte ReadInput(byte ControlByte, byte RegisterAddress)
 void checkPhysicalButton()
 {
 
-  btnPinState1 = ReadInput(Address_byte, GPIOB);
-  btnPinState2 = ReadInput(Address_byte, GPIOB);
+  btnPinState_SW1_1 = ReadInput(Address_byte, GPIOB);
+  btnPinState_SW1_2 = ReadInput(Address_byte, GPIOB);
   if (!is_boot1)
   {
 
-    if (btnPinState1 != lastButtonState1)
+    if (btnPinState_SW1_1 != lastButtonState_SW1_1)
     {
-      if (btnPinState1 == 0x7F)
+      if (btnPinState_SW1_1 == 0x7F)
       {
 
-        ledState = !ledState;
-        Blynk.virtualWrite(V3, ledState);
+        Status_CH1 = !Status_CH1;
+        Blynk.virtualWrite(V3, Status_CH1);
       }
       else
       {
@@ -123,13 +142,13 @@ void checkPhysicalButton()
       delay(50);
     }
 
-    if (btnPinState2 != lastButtonState2)
+    if (btnPinState_SW1_2 != lastButtonState_SW1_2)
     {
-      if (btnPinState2 == 0xBF)
+      if (btnPinState_SW1_2 == 0xBF)
       {
 
-        ledState = !ledState;
-        Blynk.virtualWrite(V3, ledState);
+        Status_CH1 = !Status_CH1;
+        Blynk.virtualWrite(V3, Status_CH1);
       }
       else
       {
@@ -139,7 +158,7 @@ void checkPhysicalButton()
     }
   }
 
-  if (ledState == 1)
+  if (Status_CH1 == 1)
   {
     out_PUT[0] = '1';
   }
@@ -153,7 +172,6 @@ void checkPhysicalButton()
 
   WriteOutput(Address_byte, GPIOA, sender);
 
-  lastButtonState1 = btnPinState1;
-  lastButtonState2 = btnPinState2;
+  lastButtonState_SW1_1 = btnPinState_SW1_1;
+  lastButtonState_SW1_2 = btnPinState_SW1_2;
 }
-
