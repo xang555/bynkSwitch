@@ -11,3 +11,39 @@
 #define Output_mode 0x00
 #define Intput_mode 0xFF
 
+/************** Status Relays ****************/
+int Status_CH1 = 0;
+int Status_CH2 = 0;
+int Status_CH3 = 0;
+int Status_CH4 = 0;
+
+/************** Status Switches on push ****************/
+int btnPinState_SW1_1 = 0x00;
+int btnPinState_SW1_2 = 0x00;
+int btnPinState_SW2_1 = 0x00;
+int btnPinState_SW2_2 = 0x00;
+int btnPinState_SW3_1 = 0x00;
+int btnPinState_SW3_2 = 0x00;
+int btnPinState_SW4_1 = 0x00;
+int btnPinState_SW4_2 = 0x00;
+
+/************** last Status Switches ****************/
+int lastButtonState_SW1_1 = 0x00;
+int lastButtonState_SW1_2 = 0x00;
+int lastButtonState_SW2_1 = 0x00;
+int lastButtonState_SW2_2 = 0x00;
+int lastButtonState_SW3_1 = 0x00;
+int lastButtonState_SW3_2 = 0x00;
+int lastButtonState_SW4_1 = 0x00;
+int lastButtonState_SW4_2 = 0x00;
+
+/************** Checking Status Switches ****************/
+bool is_boot1 = true;
+bool is_boot2 = true;
+bool is_boot3 = true;
+bool is_boot4 = true;
+
+/************** Write OUTPUT to Relay ****************/
+char out_PUT[] = {'0', '0', '0', '0', '0', '0', '0', '0'};
+int sender = 0x00;
+

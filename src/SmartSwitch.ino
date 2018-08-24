@@ -6,46 +6,13 @@
 #include <Wire.h>
 #include "Registor.h"
 
-/************** Status Relays ****************/
-byte Status_CH1 = 0;
-byte Status_CH2 = 0;
-byte Status_CH3 = 0;
-byte Status_CH4 = 0;
-
-/************** Status Switches on push ****************/
-byte btnPinState_SW1_1 = 0x00;
-byte btnPinState_SW1_2 = 0x00;
-byte btnPinState_SW2_1 = 0x00;
-byte btnPinState_SW2_2 = 0x00;
-byte btnPinState_SW3_1 = 0x00;
-byte btnPinState_SW3_2 = 0x00;
-byte btnPinState_SW4_1 = 0x00;
-byte btnPinState_SW4_2 = 0x00;
-
-/************** last Status Switches ****************/
-int lastButtonState_SW1_1 = 0x00;
-int lastButtonState_SW1_2 = 0x00;
-int lastButtonState_SW2_1 = 0x00;
-int lastButtonState_SW2_2 = 0x00;
-int lastButtonState_SW3_1 = 0x00;
-int lastButtonState_SW3_2 = 0x00;
-int lastButtonState_SW4_1 = 0x00;
-int lastButtonState_SW4_2 = 0x00;
-
-byte buttonPushCounter1 = 0;
-byte buttonPushCounter2 = 0;
-
-bool is_boot1 = true;
-
-char out_PUT[] = {'0', '0', '0', '0', '0', '0', '0', '0'};
-int sender = 0x00;
-String S;
-
 char auth[] = "e45fa5940c20455b9d492a47af01aac4";
-
 char ssid[] = "TOCK-95";
 char pass[] = "02076993003";
+
 SimpleTimer timer;
+
+String S;
 
 void setup()
 {
