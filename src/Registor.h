@@ -1,41 +1,49 @@
-/************** define register part ****************/
-#define IODIRA 0x00 // I/O DIRECTION REGISTER A
-#define IODIRB 0x01 // I/O DIECTION REGISTER B
-#define GPIOA 0x12  // Set/Reset GPIOA REGISTER
-#define GPIOB 0x13  // Set/Reset GPIOA REGISTER
-#define GPPUA 0x0C  // GPIO PULL-UP RESISTOR REGISTER
-#define GPPUB 0x0D  // GPIO PULL-UP RESISTOR REGISTER
+#include <Arduino.h>
+#include <Wire.h>
+#include "Adafruit_MCP23017.h"
 
-/************* define command part ********************/
-#define Address_byte 0x20 // control byte not include R/W bit use just 7 bit
-#define Output_mode 0x00
-#define Intput_mode 0xFF
+/************** Pins Active Relays ****************/
+#define CH1 7
+#define CH2 6
+#define CH3 5
+#define CH4 4
+
+/************** Pins Switch INPUT ****************/
+byte sw1_1 = 15;
+byte sw1_2 = 14;
+byte sw2_1 = 13;
+byte sw2_2 = 12;
+byte sw3_1 = 11;
+byte sw3_2 = 10;
+byte sw4_1 = 9;
+byte sw4_2 = 8;
+
 
 /************** Status Relays ****************/
-int Status_CH1 = 0;
-int Status_CH2 = 0;
-int Status_CH3 = 0;
-int Status_CH4 = 0;
+byte Status_CH1 = 0;
+byte Status_CH2 = 0;
+byte Status_CH3 = 0;
+byte Status_CH4 = 0;
 
 /************** Status Switches on push ****************/
-int btnPinState_SW1_1 = 0x00;
-int btnPinState_SW1_2 = 0x00;
-int btnPinState_SW2_1 = 0x00;
-int btnPinState_SW2_2 = 0x00;
-int btnPinState_SW3_1 = 0x00;
-int btnPinState_SW3_2 = 0x00;
-int btnPinState_SW4_1 = 0x00;
-int btnPinState_SW4_2 = 0x00;
+byte btnPinState_SW1_1 = 0;
+byte btnPinState_SW1_2 = 0;
+byte btnPinState_SW2_1 = 0;
+byte btnPinState_SW2_2 = 0;
+byte btnPinState_SW3_1 = 0;
+byte btnPinState_SW3_2 = 0;
+byte btnPinState_SW4_1 = 0;
+byte btnPinState_SW4_2 = 0;
 
 /************** last Status Switches ****************/
-int lastButtonState_SW1_1 = 0x00;
-int lastButtonState_SW1_2 = 0x00;
-int lastButtonState_SW2_1 = 0x00;
-int lastButtonState_SW2_2 = 0x00;
-int lastButtonState_SW3_1 = 0x00;
-int lastButtonState_SW3_2 = 0x00;
-int lastButtonState_SW4_1 = 0x00;
-int lastButtonState_SW4_2 = 0x00;
+byte lastButtonState_SW1_1 = 0;
+byte lastButtonState_SW1_2 = 0;
+byte lastButtonState_SW2_1 = 0;
+byte lastButtonState_SW2_2 = 0;
+byte lastButtonState_SW3_1 = 0;
+byte lastButtonState_SW3_2 = 0;
+byte lastButtonState_SW4_1 = 0;
+byte lastButtonState_SW4_2 = 0;
 
 /************** Checking Status Switches ****************/
 bool is_boot1 = true;
@@ -43,7 +51,4 @@ bool is_boot2 = true;
 bool is_boot3 = true;
 bool is_boot4 = true;
 
-/************** Write OUTPUT to Relay ****************/
-char out_PUT[] = {'0', '0', '0', '0', '0', '0', '0', '0'};
-int sender = 0x00;
 

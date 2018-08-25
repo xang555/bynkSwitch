@@ -1,9 +1,7 @@
 #define BLYNK_PRINT Serial
 
-#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
-#include <Wire.h>
 #include "Registor.h"
 
 char auth[] = "e45fa5940c20455b9d492a47af01aac4";
@@ -11,17 +9,15 @@ char ssid[] = "TOCK-95";
 char pass[] = "02076993003";
 
 SimpleTimer timer;
-
-String S;
+Adafruit_MCP23017 mcp;
 
 void setup()
 {
 
   Serial.begin(115200); //Start serial for output
-  Wire.begin();
-  WriteOutput(Address_byte, IODIRA, Output_mode); // setup output port
-  WriteOutput(Address_byte, IODIRB, Intput_mode); // setup input port
-  WriteOutput(Address_byte, GPPUB, Intput_mode);  // setup output_mode port
+  mcp.begin();          // use default address 0
+
+  config_Pin();
   is_boot1 = true;
 
   WiFi.begin(ssid, pass);
@@ -31,7 +27,7 @@ void setup()
     delay(100);
     Serial.print(".");
     checkPhysicalButton();
-    is_boot1 = false;
+
   }
   Blynk.begin(auth, ssid, pass);
   timer.setInterval(10L, checkPhysicalButton);
@@ -50,14 +46,14 @@ BLYNK_WRITE(V3)
 
   if (Status_CH1 == 1)
   {
-    out_PUT[0] = '1';
+    mcp.digitalWrite(CH1, HIGH);
   }
   else
   {
-    out_PUT[0] = '0';
+    mcp.digitalWrite(CH1, LOW);
   }
 
-  is_boot1 = false;
+  
 }
 
 void loop()
@@ -67,40 +63,31 @@ void loop()
   timer.run();
 }
 
-void WriteOutput(byte ControlByte, byte RegisterAddress, byte Value)
-{
-
-  Wire.beginTransmission(ControlByte); //Send ID Code
-  Wire.write(RegisterAddress);         //Send Data
-  Wire.write(Value);
-  Wire.endTransmission(); //Stop Condition
-}
-
-byte ReadInput(byte ControlByte, byte RegisterAddress)
-{
-
-  Wire.beginTransmission(ControlByte);
-  Wire.write(RegisterAddress);
-  Wire.endTransmission();
-  Wire.requestFrom(ControlByte, 1);
-  return (Wire.read());
-}
-
 void checkPhysicalButton()
 {
 
-  btnPinState_SW1_1 = ReadInput(Address_byte, GPIOB);
-  btnPinState_SW1_2 = ReadInput(Address_byte, GPIOB);
+  btnPinState_SW1_1 = mcp.digitalRead(sw1_1);
+  btnPinState_SW1_2 = mcp.digitalRead(sw1_2);
+
   if (!is_boot1)
   {
 
     if (btnPinState_SW1_1 != lastButtonState_SW1_1)
     {
-      if (btnPinState_SW1_1 == 0x7F)
+      if (btnPinState_SW1_1 == LOW)
       {
 
         Status_CH1 = !Status_CH1;
         Blynk.virtualWrite(V3, Status_CH1);
+
+        if (Status_CH1 == 1)
+        {
+          mcp.digitalWrite(CH1, HIGH);
+        }
+        else
+        {
+          mcp.digitalWrite(CH1, LOW);
+        }
       }
       else
       {
@@ -111,11 +98,20 @@ void checkPhysicalButton()
 
     if (btnPinState_SW1_2 != lastButtonState_SW1_2)
     {
-      if (btnPinState_SW1_2 == 0xBF)
+      if (btnPinState_SW1_2 == LOW)
       {
 
         Status_CH1 = !Status_CH1;
         Blynk.virtualWrite(V3, Status_CH1);
+
+        if (Status_CH1 == 1)
+        {
+          mcp.digitalWrite(CH1, HIGH);
+        }
+        else
+        {
+          mcp.digitalWrite(CH1, LOW);
+        }
       }
       else
       {
@@ -125,20 +121,49 @@ void checkPhysicalButton()
     }
   }
 
-  if (Status_CH1 == 1)
-  {
-    out_PUT[0] = '1';
-  }
-  else
-  {
-    out_PUT[0] = '0';
-  }
+  // if (!is_boot2)
+  // {
 
-  S = out_PUT;
-  sender = S.toInt();
+  //   if (btnPinState_SW2_1 != lastButtonState_SW2_1)
+  //   {
+  //     if (btnPinState_SW2_1 == LOW)
+  //     {
 
-  WriteOutput(Address_byte, GPIOA, sender);
+  //     }
+
+  //   }
+
+  // }
 
   lastButtonState_SW1_1 = btnPinState_SW1_1;
   lastButtonState_SW1_2 = btnPinState_SW1_2;
+
+  is_boot1 = false;
+}
+
+void config_Pin()
+{
+
+  mcp.pinMode(CH1, OUTPUT);
+  mcp.pinMode(CH2, OUTPUT);
+  mcp.pinMode(CH3, OUTPUT);
+  mcp.pinMode(CH4, OUTPUT);
+
+  mcp.pinMode(sw1_1, INPUT);
+  mcp.pinMode(sw1_2, INPUT);
+  mcp.pinMode(sw2_1, INPUT);
+  mcp.pinMode(sw2_2, INPUT);
+  mcp.pinMode(sw3_1, INPUT);
+  mcp.pinMode(sw3_2, INPUT);
+  mcp.pinMode(sw4_1, INPUT);
+  mcp.pinMode(sw4_2, INPUT);
+
+  mcp.pullUp(sw1_1, HIGH);
+  mcp.pullUp(sw1_2, HIGH);
+  mcp.pullUp(sw2_1, HIGH);
+  mcp.pullUp(sw2_2, HIGH);
+  mcp.pullUp(sw3_1, HIGH);
+  mcp.pullUp(sw3_2, HIGH);
+  mcp.pullUp(sw4_1, HIGH);
+  mcp.pullUp(sw4_2, HIGH);
 }
