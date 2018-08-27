@@ -19,6 +19,7 @@ void setup()
 
   config_Pin();
   is_boot1 = true;
+  is_boot2 = true;
 
   WiFi.begin(ssid, pass);
   while (WiFi.status() != WL_CONNECTED)
@@ -37,7 +38,9 @@ BLYNK_CONNECTED()
 {
   // Alternatively, you could override server state using:
   Blynk.virtualWrite(V3, Status_CH1);
+  Blynk.virtualWrite(V4, Status_CH2);
   Blynk.syncVirtual(V3);
+  Blynk.syncVirtual(V4);
 }
 
 BLYNK_WRITE(V3)
@@ -56,6 +59,22 @@ BLYNK_WRITE(V3)
   
 }
 
+BLYNK_WRITE(V4)
+{ // Map this Virtual Pin to your  Mobile Blynk apps widget.
+  Status_CH2 = param.asInt();
+
+  if (Status_CH2 == 1)
+  {
+    mcp.digitalWrite(CH2, HIGH);
+  }
+  else
+  {
+    mcp.digitalWrite(CH2, LOW);
+  }
+
+  
+}
+
 void loop()
 {
 
@@ -68,6 +87,9 @@ void checkPhysicalButton()
 
   btnPinState_SW1_1 = mcp.digitalRead(sw1_1);
   btnPinState_SW1_2 = mcp.digitalRead(sw1_2);
+  btnPinState_SW2_1 = mcp.digitalRead(sw2_1);
+  btnPinState_SW2_2 = mcp.digitalRead(sw2_2);
+
 
   if (!is_boot1)
   {
@@ -121,24 +143,68 @@ void checkPhysicalButton()
     }
   }
 
-  // if (!is_boot2)
-  // {
+  if (!is_boot2)
+  {
 
-  //   if (btnPinState_SW2_1 != lastButtonState_SW2_1)
-  //   {
-  //     if (btnPinState_SW2_1 == LOW)
-  //     {
+    if (btnPinState_SW2_1 != lastButtonState_SW2_1)
+    {
+      if (btnPinState_SW2_1 == LOW)
+      {
 
-  //     }
+        Status_CH2 = !Status_CH2;
+        Blynk.virtualWrite(V4, Status_CH2);
+        if (Status_CH2 == 1)
+        {
+          mcp.digitalWrite(CH2, HIGH);
+        }
+        else
+        {
+          mcp.digitalWrite(CH2, LOW);
+        }
 
-  //   }
+      } else 
+      {
 
-  // }
+      }
+      // Delay a little bit to avoid bouncing
+      delay(50);
+
+    }
+
+    if (btnPinState_SW2_2 != lastButtonState_SW2_2)
+    {
+      if (btnPinState_SW2_2 == LOW)
+      {
+
+        Status_CH2 = !Status_CH2;
+        Blynk.virtualWrite(V4, Status_CH2);
+        if (Status_CH2 == 1)
+        {
+          mcp.digitalWrite(CH2, HIGH);
+        }
+        else
+        {
+          mcp.digitalWrite(CH2, LOW);
+        }
+
+      } else 
+      {
+
+      }
+      // Delay a little bit to avoid bouncing
+      delay(50);
+
+    }
+
+  }
 
   lastButtonState_SW1_1 = btnPinState_SW1_1;
   lastButtonState_SW1_2 = btnPinState_SW1_2;
+  lastButtonState_SW2_1 = btnPinState_SW2_1;
+  lastButtonState_SW2_2 = btnPinState_SW2_2;
 
   is_boot1 = false;
+  is_boot2 = false;
 }
 
 void config_Pin()
