@@ -1,7 +1,4 @@
-#include <Arduino.h>
-#include <Wire.h>
-#include <EEPROM.h>
-#include "Adafruit_MCP23017.h"
+
 
 /************** Pins Active Relays ****************/
 #define CH1 7
@@ -52,12 +49,11 @@ bool is_boot2 = true;
 bool is_boot3 = true;
 bool is_boot4 = true;
 
-
 /************** Save EEPROM Status Relays ****************/
-#define addrRelay1  21
-#define addrRelay2  22
-#define addrRelay3  23
-#define addrRelay4  24
+int addrRelay1 = 1;
+int addrRelay2 = 2;
+int addrRelay3 = 3;
+int addrRelay4 = 4;
 
 String SaveRelay1;
 String SaveRelay2;
@@ -65,24 +61,6 @@ String SaveRelay3;
 String SaveRelay4;
 
 
-String EEPROM_read(int index, int length) {
-  String text = "";
-  char ch = 1;
 
-  for (int i = index; (i < (index + length)) && ch; ++i) {
-    if (ch = EEPROM.read(i)) {
-      text.concat(ch);
-    }
-  }
-  return text;
-}
 
-int EEPROM_write(int index, String text) {
-  for (int i = index; i < text.length() + index; ++i) {
-    EEPROM.write(i, text[i - index]);
-  }
-  EEPROM.write(index + text.length(), 0);
-  EEPROM.commit();
 
-  return text.length() + 1;
-}

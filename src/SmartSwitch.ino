@@ -1,15 +1,73 @@
 #define BLYNK_PRINT Serial
 
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
+#include <Wire.h>
+#include <EEPROM.h>
+#include "Adafruit_MCP23017.h"
 #include "Registor.h"
 
 char auth[] = "e45fa5940c20455b9d492a47af01aac4";
-char ssid[] = "TOCK-95";
-char pass[] = "02076993003";
+char ssid[] = "Tock";
+char pass[] = "12345678";
 
 SimpleTimer timer;
 Adafruit_MCP23017 mcp;
+
+WiFiClient wifiClient;
+
+// This function tries to connect to the cloud using TCP
+bool connectBlynk()
+{
+  wifiClient.stop();
+  return wifiClient.connect(BLYNK_DEFAULT_DOMAIN, BLYNK_DEFAULT_PORT);
+}
+
+// This function tries to connect to your WiFi network
+void connectWiFi()
+{
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  if (pass && strlen(pass))
+  {
+    WiFi.begin((char *)ssid, (char *)pass);
+  }
+  else
+  {
+    WiFi.begin((char *)ssid);
+  }
+
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(100);
+    Serial.print(".");
+    checkPhysicalButton();
+  }
+}
+
+String EEPROM_read(int index, int length) {
+  String text = "";
+  char ch = 1;
+
+  for (int i = index; (i < (index + length)) && ch; ++i) {
+    if (ch = EEPROM.read(i)) {
+      text.concat(ch);
+    }
+  }
+  return text;
+}
+
+int EEPROM_write(int index, String text) {
+  for (int i = index; i < text.length() + index; ++i) {
+    EEPROM.write(i, text[i - index]);
+  }
+  EEPROM.write(index + text.length(), 0);
+  EEPROM.commit();
+
+  return text.length() + 1;
+}
 
 void setup()
 {
@@ -18,31 +76,33 @@ void setup()
   mcp.begin();          // use default address 0
   delay(100);
   EEPROM.begin(512);
+  delay(1000);
+  Serial.println();
   read_EEPROM();
-  Serial.println(WiFi.macAddress());
   delay(1000);
   Serial.println();
   Serial.println();
   Serial.println();
   config_Pin();
 
-  Status_CH1 = SaveRelay1 == "1" ? 1 : 0;
 
-  is_boot1 = true;
-  is_boot2 = true;
+  Status_CH1 = SaveRelay1 == "1" ? 1 : 0;
+  Status_CH2 = SaveRelay2 == "1" ? 1 : 0;
+  // Status_CH3 = SaveRelay3 == "1" ? 1 : 0;
+  // Status_CH4 = SaveRelay4 == "1" ? 1 : 0;
 
   mcp.digitalWrite(CH1, Status_CH1);
+  delay(100);
+  mcp.digitalWrite(CH2, Status_CH2);
 
-  WiFi.begin(ssid, pass);
-  while (WiFi.status() != WL_CONNECTED)
-  {
 
-    delay(100);
-    Serial.print(".");
-    checkPhysicalButton();
-  }
+  connectWiFi();
+  connectBlynk();
   Blynk.begin(auth, ssid, pass);
-  timer.setInterval(10L, checkPhysicalButton);
+  timer.setInterval(100L, checkPhysicalButton);
+
+  // mcp.digitalWrite(CH3, Status_CH3);
+  // mcp.digitalWrite(CH4, Status_CH4);
 }
 
 BLYNK_CONNECTED()
@@ -61,12 +121,12 @@ BLYNK_WRITE(V3)
   if (Status_CH1 == 1)
   {
     mcp.digitalWrite(CH1, HIGH);
-    EEPROM_write(addrRelay1,"1");
+    EEPROM_write(addrRelay1, "1");
   }
   else
   {
     mcp.digitalWrite(CH1, LOW);
-    EEPROM_write(addrRelay1,"0");
+    EEPROM_write(addrRelay1, "0");
   }
 }
 
@@ -77,15 +137,31 @@ BLYNK_WRITE(V4)
   if (Status_CH2 == 1)
   {
     mcp.digitalWrite(CH2, HIGH);
+    EEPROM_write(addrRelay2, "1");
   }
   else
   {
     mcp.digitalWrite(CH2, LOW);
+    EEPROM_write(addrRelay2, "0");
   }
 }
 
 void loop()
 {
+
+  // Reconnect WiFi
+  if (WiFi.status() != WL_CONNECTED)
+  {
+    connectWiFi();
+    return;
+  }
+
+  // Reconnect to Blynk Cloud
+  if (!wifiClient.connected())
+  {
+    connectBlynk();
+    return;
+  }
 
   Blynk.run();
   timer.run();
@@ -112,20 +188,20 @@ void checkPhysicalButton()
 
         if (Status_CH1 == 1)
         {
-          mcp.digitalWrite(CH1, HIGH);
-          EEPROM_write(addrRelay1,"1");
+          mcp.digitalWrite(CH1, Status_CH1);
+          EEPROM_write(addrRelay1, "1");
         }
         else
         {
-          mcp.digitalWrite(CH1, LOW);
-          EEPROM_write(addrRelay1,"0");
+          mcp.digitalWrite(CH1, Status_CH1);
+          EEPROM_write(addrRelay1, "0");
         }
       }
       else
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(50);
+      delay(20);
     }
 
     if (btnPinState_SW1_2 != lastButtonState_SW1_2)
@@ -138,20 +214,20 @@ void checkPhysicalButton()
 
         if (Status_CH1 == 1)
         {
-          mcp.digitalWrite(CH1, HIGH);
-          EEPROM_write(addrRelay1,"1");
+          mcp.digitalWrite(CH1, Status_CH1);
+          EEPROM_write(addrRelay1, "1");
         }
         else
         {
-          mcp.digitalWrite(CH1, LOW);
-          EEPROM_write(addrRelay1,"0");
+          mcp.digitalWrite(CH1, Status_CH1);
+          EEPROM_write(addrRelay1, "0");
         }
       }
       else
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(50);
+      delay(20);
     }
   }
 
@@ -167,18 +243,20 @@ void checkPhysicalButton()
         Blynk.virtualWrite(V4, Status_CH2);
         if (Status_CH2 == 1)
         {
-          mcp.digitalWrite(CH2, HIGH);
+          mcp.digitalWrite(CH2, Status_CH2);
+          EEPROM_write(addrRelay2, "1");
         }
         else
         {
-          mcp.digitalWrite(CH2, LOW);
+          mcp.digitalWrite(CH2, Status_CH2);
+          EEPROM_write(addrRelay2, "0");
         }
       }
       else
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(50);
+      delay(20);
     }
 
     if (btnPinState_SW2_2 != lastButtonState_SW2_2)
@@ -190,18 +268,20 @@ void checkPhysicalButton()
         Blynk.virtualWrite(V4, Status_CH2);
         if (Status_CH2 == 1)
         {
-          mcp.digitalWrite(CH2, HIGH);
+          mcp.digitalWrite(CH2, Status_CH2);
+          EEPROM_write(addrRelay2, "1");
         }
         else
         {
-          mcp.digitalWrite(CH2, LOW);
+          mcp.digitalWrite(CH2, Status_CH2);
+          EEPROM_write(addrRelay2, "0");
         }
       }
       else
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(50);
+      delay(20);
     }
   }
 
@@ -243,8 +323,12 @@ void config_Pin()
 
 void read_EEPROM()
 {
-  SaveRelay1 = EEPROM_read(addrRelay1, 2);
-  SaveRelay2 = EEPROM_read(addrRelay2, 2);
-  SaveRelay3 = EEPROM_read(addrRelay3, 2);
-  SaveRelay4 = EEPROM_read(addrRelay4, 2);
+  SaveRelay1 = EEPROM_read(addrRelay1, 1);
+  delay(1000);
+  Serial.println(SaveRelay1);
+  SaveRelay2 = EEPROM_read(addrRelay2, 1);
+  delay(1000);
+  Serial.println(SaveRelay2);
+  // SaveRelay3 = EEPROM_read(addrRelay3, 5);
+  // SaveRelay4 = EEPROM_read(addrRelay4, 5);
 }
