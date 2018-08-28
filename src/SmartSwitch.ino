@@ -122,11 +122,13 @@ BLYNK_WRITE(V3)
   {
     mcp.digitalWrite(CH1, HIGH);
     EEPROM_write(addrRelay1, "1");
+    delay(50);
   }
   else
   {
     mcp.digitalWrite(CH1, LOW);
     EEPROM_write(addrRelay1, "0");
+    delay(50);
   }
 }
 
@@ -138,11 +140,13 @@ BLYNK_WRITE(V4)
   {
     mcp.digitalWrite(CH2, HIGH);
     EEPROM_write(addrRelay2, "1");
+    delay(50);
   }
   else
   {
     mcp.digitalWrite(CH2, LOW);
     EEPROM_write(addrRelay2, "0");
+    delay(50);
   }
 }
 
@@ -190,11 +194,13 @@ void checkPhysicalButton()
         {
           mcp.digitalWrite(CH1, Status_CH1);
           EEPROM_write(addrRelay1, "1");
+          delay(50);
         }
         else
         {
           mcp.digitalWrite(CH1, Status_CH1);
           EEPROM_write(addrRelay1, "0");
+          delay(50);
         }
       }
       else
@@ -216,11 +222,13 @@ void checkPhysicalButton()
         {
           mcp.digitalWrite(CH1, Status_CH1);
           EEPROM_write(addrRelay1, "1");
+          delay(50);
         }
         else
         {
           mcp.digitalWrite(CH1, Status_CH1);
           EEPROM_write(addrRelay1, "0");
+          delay(50);
         }
       }
       else
@@ -245,11 +253,13 @@ void checkPhysicalButton()
         {
           mcp.digitalWrite(CH2, Status_CH2);
           EEPROM_write(addrRelay2, "1");
+          delay(50);
         }
         else
         {
           mcp.digitalWrite(CH2, Status_CH2);
           EEPROM_write(addrRelay2, "0");
+          delay(50);
         }
       }
       else
@@ -270,11 +280,13 @@ void checkPhysicalButton()
         {
           mcp.digitalWrite(CH2, Status_CH2);
           EEPROM_write(addrRelay2, "1");
+          delay(50);
         }
         else
         {
           mcp.digitalWrite(CH2, Status_CH2);
           EEPROM_write(addrRelay2, "0");
+          delay(50);
         }
       }
       else
@@ -324,10 +336,10 @@ void config_Pin()
 void read_EEPROM()
 {
   SaveRelay1 = EEPROM_read(addrRelay1, 1);
-  delay(1000);
+  delay(1500);
   Serial.println(SaveRelay1);
   SaveRelay2 = EEPROM_read(addrRelay2, 1);
-  delay(1000);
+  delay(1500);
   Serial.println(SaveRelay2);
   // SaveRelay3 = EEPROM_read(addrRelay3, 5);
   // SaveRelay4 = EEPROM_read(addrRelay4, 5);
