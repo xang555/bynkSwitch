@@ -16,10 +16,22 @@ void setup()
 
   Serial.begin(115200); //Start serial for output
   mcp.begin();          // use default address 0
-
+  delay(100);
+  EEPROM.begin(512);
+  read_EEPROM();
+  Serial.println(WiFi.macAddress());
+  delay(1000);
+  Serial.println();
+  Serial.println();
+  Serial.println();
   config_Pin();
+
+  Status_CH1 = SaveRelay1 == "1" ? 1 : 0;
+
   is_boot1 = true;
   is_boot2 = true;
+
+  mcp.digitalWrite(CH1, Status_CH1);
 
   WiFi.begin(ssid, pass);
   while (WiFi.status() != WL_CONNECTED)
@@ -28,7 +40,6 @@ void setup()
     delay(100);
     Serial.print(".");
     checkPhysicalButton();
-
   }
   Blynk.begin(auth, ssid, pass);
   timer.setInterval(10L, checkPhysicalButton);
@@ -50,13 +61,13 @@ BLYNK_WRITE(V3)
   if (Status_CH1 == 1)
   {
     mcp.digitalWrite(CH1, HIGH);
+    EEPROM_write(addrRelay1,"1");
   }
   else
   {
     mcp.digitalWrite(CH1, LOW);
+    EEPROM_write(addrRelay1,"0");
   }
-
-  
 }
 
 BLYNK_WRITE(V4)
@@ -71,8 +82,6 @@ BLYNK_WRITE(V4)
   {
     mcp.digitalWrite(CH2, LOW);
   }
-
-  
 }
 
 void loop()
@@ -90,7 +99,6 @@ void checkPhysicalButton()
   btnPinState_SW2_1 = mcp.digitalRead(sw2_1);
   btnPinState_SW2_2 = mcp.digitalRead(sw2_2);
 
-
   if (!is_boot1)
   {
 
@@ -105,10 +113,12 @@ void checkPhysicalButton()
         if (Status_CH1 == 1)
         {
           mcp.digitalWrite(CH1, HIGH);
+          EEPROM_write(addrRelay1,"1");
         }
         else
         {
           mcp.digitalWrite(CH1, LOW);
+          EEPROM_write(addrRelay1,"0");
         }
       }
       else
@@ -129,10 +139,12 @@ void checkPhysicalButton()
         if (Status_CH1 == 1)
         {
           mcp.digitalWrite(CH1, HIGH);
+          EEPROM_write(addrRelay1,"1");
         }
         else
         {
           mcp.digitalWrite(CH1, LOW);
+          EEPROM_write(addrRelay1,"0");
         }
       }
       else
@@ -161,14 +173,12 @@ void checkPhysicalButton()
         {
           mcp.digitalWrite(CH2, LOW);
         }
-
-      } else 
+      }
+      else
       {
-
       }
       // Delay a little bit to avoid bouncing
       delay(50);
-
     }
 
     if (btnPinState_SW2_2 != lastButtonState_SW2_2)
@@ -186,16 +196,13 @@ void checkPhysicalButton()
         {
           mcp.digitalWrite(CH2, LOW);
         }
-
-      } else 
+      }
+      else
       {
-
       }
       // Delay a little bit to avoid bouncing
       delay(50);
-
     }
-
   }
 
   lastButtonState_SW1_1 = btnPinState_SW1_1;
@@ -232,4 +239,12 @@ void config_Pin()
   mcp.pullUp(sw3_2, HIGH);
   mcp.pullUp(sw4_1, HIGH);
   mcp.pullUp(sw4_2, HIGH);
+}
+
+void read_EEPROM()
+{
+  SaveRelay1 = EEPROM_read(addrRelay1, 2);
+  SaveRelay2 = EEPROM_read(addrRelay2, 2);
+  SaveRelay3 = EEPROM_read(addrRelay3, 2);
+  SaveRelay4 = EEPROM_read(addrRelay4, 2);
 }
