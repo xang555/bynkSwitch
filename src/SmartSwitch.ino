@@ -1,4 +1,4 @@
-#define BLYNK_PRINT Serial
+// #define BLYNK_PRINT Serial
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
@@ -52,7 +52,7 @@ void setup()
 
   Serial.begin(115200); //Start serial for output
   EEPROM.begin(512);
-  mcp.begin(); // use default address 0
+  mcp.begin(1); // use default address 0
   delay(100);
   Serial.println();
   read_EEPROM();
@@ -68,17 +68,13 @@ void setup()
   // Status_CH4 = SaveRelay4 == "1" ? 1 : 0;
 
   mcp.digitalWrite(CH1, Status_CH1);
-  delay(100);
   mcp.digitalWrite(CH2, Status_CH2);
+  mcp.digitalWrite(CH3, Status_CH3);
 
   connectWiFi();
   connectBlynk();
   Blynk.begin(auth, ssid, pass);
-  timer.setInterval(100L, checkPhysicalButton);
-
-  mcp.digitalWrite(CH3, Status_CH1);
-  mcp.digitalWrite(CH4, Status_CH2);
-  mcp.digitalWrite(CH4, Status_CH3);
+  timer.setInterval(50L, checkPhysicalButton);
 }
 
 BLYNK_CONNECTED()
@@ -101,15 +97,14 @@ BLYNK_WRITE(V3)
     mcp.digitalWrite(CH1, Status_CH1);
     Serial.println("CH1 = " + String(Status_CH1));
     EEPROM.write(addrRelay1, 1);
-    EEPROM.commit();
   }
   else
   {
     mcp.digitalWrite(CH1, Status_CH1);
     Serial.println("CH1 = " + String(Status_CH1));
     EEPROM.write(addrRelay1, 0);
-    EEPROM.commit();
   }
+  EEPROM.commit();
 }
 
 BLYNK_WRITE(V4)
@@ -121,15 +116,14 @@ BLYNK_WRITE(V4)
     mcp.digitalWrite(CH2, Status_CH2);
     Serial.println("CH2 = " + String(Status_CH2));
     EEPROM.write(addrRelay2, 1);
-    EEPROM.commit();
   }
   else
   {
     mcp.digitalWrite(CH2, Status_CH2);
     Serial.println("CH2 = " + String(Status_CH2));
     EEPROM.write(addrRelay2, 0);
-    EEPROM.commit();
   }
+  EEPROM.commit();
 }
 
 BLYNK_WRITE(V5)
@@ -141,15 +135,14 @@ BLYNK_WRITE(V5)
     mcp.digitalWrite(CH3, Status_CH3);
     Serial.println("CH3 = " + String(Status_CH3));
     EEPROM.write(addrRelay3, 1);
-    EEPROM.commit();
   }
   else
   {
     mcp.digitalWrite(CH3, Status_CH3);
     Serial.println("CH3 = " + String(Status_CH3));
     EEPROM.write(addrRelay3, 0);
-    EEPROM.commit();
   }
+  EEPROM.commit();
 }
 
 void loop()
