@@ -50,15 +50,15 @@ bool is_boot3 = true;
 bool is_boot4 = true;
 
 /************** Save EEPROM Status Relays ****************/
-int addrRelay1 = 1;
-int addrRelay2 = 2;
-int addrRelay3 = 3;
-int addrRelay4 = 4;
+int addrRelay1 = 0;
+int addrRelay2 = 1;
+int addrRelay3 = 2;
+int addrRelay4 = 3;
 
-String SaveRelay1;
-String SaveRelay2;
-String SaveRelay3;
-String SaveRelay4;
+byte SaveRelay1;
+byte SaveRelay2;
+byte SaveRelay3;
+byte SaveRelay4;
 
 
 

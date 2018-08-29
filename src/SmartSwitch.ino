@@ -47,47 +47,23 @@ void connectWiFi()
   }
 }
 
-String EEPROM_read(int index, int length) {
-  String text = "";
-  char ch = 1;
-
-  for (int i = index; (i < (index + length)) && ch; ++i) {
-    if (ch = EEPROM.read(i)) {
-      text.concat(ch);
-    }
-  }
-  return text;
-}
-
-int EEPROM_write(int index, String text) {
-  for (int i = index; i < text.length() + index; ++i) {
-    EEPROM.write(i, text[i - index]);
-  }
-  EEPROM.write(index + text.length(), 0);
-  EEPROM.commit();
-
-  return text.length() + 1;
-}
-
 void setup()
 {
 
   Serial.begin(115200); //Start serial for output
-  mcp.begin();          // use default address 0
-  delay(100);
   EEPROM.begin(512);
-  delay(1000);
+  mcp.begin(); // use default address 0
+  delay(100);
   Serial.println();
   read_EEPROM();
-  delay(1000);
+  delay(100);
   Serial.println();
   Serial.println();
   Serial.println();
   config_Pin();
 
-
-  Status_CH1 = SaveRelay1 == "1" ? 1 : 0;
-  Status_CH2 = SaveRelay2 == "1" ? 1 : 0;
+  Status_CH1 = SaveRelay1 == 1 ? 1 : 0;
+  Status_CH2 = SaveRelay2 == 1 ? 1 : 0;
   // Status_CH3 = SaveRelay3 == "1" ? 1 : 0;
   // Status_CH4 = SaveRelay4 == "1" ? 1 : 0;
 
@@ -95,14 +71,13 @@ void setup()
   delay(100);
   mcp.digitalWrite(CH2, Status_CH2);
 
-
   connectWiFi();
   connectBlynk();
   Blynk.begin(auth, ssid, pass);
   timer.setInterval(100L, checkPhysicalButton);
 
-  // mcp.digitalWrite(CH3, Status_CH3);
-  // mcp.digitalWrite(CH4, Status_CH4);
+  mcp.digitalWrite(CH3, Status_CH3);
+  mcp.digitalWrite(CH4, Status_CH4);
 }
 
 BLYNK_CONNECTED()
@@ -120,15 +95,17 @@ BLYNK_WRITE(V3)
 
   if (Status_CH1 == 1)
   {
-    mcp.digitalWrite(CH1, HIGH);
-    EEPROM_write(addrRelay1, "1");
-    delay(50);
+    mcp.digitalWrite(CH1, Status_CH1);
+    Serial.println("CH1 = "+ String(Status_CH1));
+    EEPROM.write(addrRelay1, 1);
+    EEPROM.commit();
   }
   else
   {
-    mcp.digitalWrite(CH1, LOW);
-    EEPROM_write(addrRelay1, "0");
-    delay(50);
+    mcp.digitalWrite(CH1, Status_CH1);
+    Serial.println("CH1 = "+ String(Status_CH1));
+    EEPROM.write(addrRelay1, 0);
+    EEPROM.commit();
   }
 }
 
@@ -138,15 +115,17 @@ BLYNK_WRITE(V4)
 
   if (Status_CH2 == 1)
   {
-    mcp.digitalWrite(CH2, HIGH);
-    EEPROM_write(addrRelay2, "1");
-    delay(50);
+    mcp.digitalWrite(CH2, Status_CH2);
+    Serial.println("CH2 = "+ String(Status_CH2));
+    EEPROM.write(addrRelay2, 1);
+    EEPROM.commit();
   }
   else
   {
-    mcp.digitalWrite(CH2, LOW);
-    EEPROM_write(addrRelay2, "0");
-    delay(50);
+    mcp.digitalWrite(CH2, Status_CH2);
+    Serial.println("CH2 = "+ String(Status_CH2));
+    EEPROM.write(addrRelay2, 0);
+    EEPROM.commit();
   }
 }
 
@@ -193,14 +172,14 @@ void checkPhysicalButton()
         if (Status_CH1 == 1)
         {
           mcp.digitalWrite(CH1, Status_CH1);
-          EEPROM_write(addrRelay1, "1");
-          delay(50);
+          EEPROM.write(addrRelay1, 1);
+          EEPROM.commit();
         }
         else
         {
           mcp.digitalWrite(CH1, Status_CH1);
-          EEPROM_write(addrRelay1, "0");
-          delay(50);
+          EEPROM.write(addrRelay1, 0);
+          EEPROM.commit();
         }
       }
       else
@@ -221,14 +200,14 @@ void checkPhysicalButton()
         if (Status_CH1 == 1)
         {
           mcp.digitalWrite(CH1, Status_CH1);
-          EEPROM_write(addrRelay1, "1");
-          delay(50);
+          EEPROM.write(addrRelay1, 1);
+          EEPROM.commit();
         }
         else
         {
           mcp.digitalWrite(CH1, Status_CH1);
-          EEPROM_write(addrRelay1, "0");
-          delay(50);
+          EEPROM.write(addrRelay1, 0);
+          EEPROM.commit();
         }
       }
       else
@@ -252,14 +231,14 @@ void checkPhysicalButton()
         if (Status_CH2 == 1)
         {
           mcp.digitalWrite(CH2, Status_CH2);
-          EEPROM_write(addrRelay2, "1");
-          delay(50);
+          EEPROM.write(addrRelay2, 1);
+          EEPROM.commit();
         }
         else
         {
           mcp.digitalWrite(CH2, Status_CH2);
-          EEPROM_write(addrRelay2, "0");
-          delay(50);
+          EEPROM.write(addrRelay2, 0);
+          EEPROM.commit();
         }
       }
       else
@@ -279,14 +258,14 @@ void checkPhysicalButton()
         if (Status_CH2 == 1)
         {
           mcp.digitalWrite(CH2, Status_CH2);
-          EEPROM_write(addrRelay2, "1");
-          delay(50);
+          EEPROM.write(addrRelay2, 1);
+          EEPROM.commit();
         }
         else
         {
           mcp.digitalWrite(CH2, Status_CH2);
-          EEPROM_write(addrRelay2, "0");
-          delay(50);
+          EEPROM.write(addrRelay2, 0);
+          EEPROM.commit();
         }
       }
       else
@@ -335,12 +314,11 @@ void config_Pin()
 
 void read_EEPROM()
 {
-  SaveRelay1 = EEPROM_read(addrRelay1, 1);
-  delay(1500);
-  Serial.println(SaveRelay1);
-  SaveRelay2 = EEPROM_read(addrRelay2, 1);
-  delay(1500);
-  Serial.println(SaveRelay2);
+  SaveRelay1 = EEPROM.read(addrRelay1);
+  Serial.println("Status_CH1 = "+ String(SaveRelay1));
+  SaveRelay2 = EEPROM.read(addrRelay2);
+  Serial.println("Status_CH2 = "+ String(SaveRelay2));
+  delay(2000);
   // SaveRelay3 = EEPROM_read(addrRelay3, 5);
   // SaveRelay4 = EEPROM_read(addrRelay4, 5);
 }
