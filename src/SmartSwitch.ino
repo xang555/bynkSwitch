@@ -64,7 +64,7 @@ void setup()
 
   Status_CH1 = SaveRelay1 == 1 ? 1 : 0;
   Status_CH2 = SaveRelay2 == 1 ? 1 : 0;
-  // Status_CH3 = SaveRelay3 == "1" ? 1 : 0;
+  Status_CH3 = SaveRelay3 == 1 ? 1 : 0;
   // Status_CH4 = SaveRelay4 == "1" ? 1 : 0;
 
   mcp.digitalWrite(CH1, Status_CH1);
@@ -76,8 +76,9 @@ void setup()
   Blynk.begin(auth, ssid, pass);
   timer.setInterval(100L, checkPhysicalButton);
 
-  mcp.digitalWrite(CH3, Status_CH3);
-  mcp.digitalWrite(CH4, Status_CH4);
+  mcp.digitalWrite(CH3, Status_CH1);
+  mcp.digitalWrite(CH4, Status_CH2);
+  mcp.digitalWrite(CH4, Status_CH3);
 }
 
 BLYNK_CONNECTED()
@@ -85,8 +86,10 @@ BLYNK_CONNECTED()
   // Alternatively, you could override server state using:
   Blynk.virtualWrite(V3, Status_CH1);
   Blynk.virtualWrite(V4, Status_CH2);
+  Blynk.virtualWrite(V5, Status_CH3);
   Blynk.syncVirtual(V3);
   Blynk.syncVirtual(V4);
+  Blynk.syncVirtual(V5);
 }
 
 BLYNK_WRITE(V3)
@@ -96,14 +99,14 @@ BLYNK_WRITE(V3)
   if (Status_CH1 == 1)
   {
     mcp.digitalWrite(CH1, Status_CH1);
-    Serial.println("CH1 = "+ String(Status_CH1));
+    Serial.println("CH1 = " + String(Status_CH1));
     EEPROM.write(addrRelay1, 1);
     EEPROM.commit();
   }
   else
   {
     mcp.digitalWrite(CH1, Status_CH1);
-    Serial.println("CH1 = "+ String(Status_CH1));
+    Serial.println("CH1 = " + String(Status_CH1));
     EEPROM.write(addrRelay1, 0);
     EEPROM.commit();
   }
@@ -116,15 +119,35 @@ BLYNK_WRITE(V4)
   if (Status_CH2 == 1)
   {
     mcp.digitalWrite(CH2, Status_CH2);
-    Serial.println("CH2 = "+ String(Status_CH2));
+    Serial.println("CH2 = " + String(Status_CH2));
     EEPROM.write(addrRelay2, 1);
     EEPROM.commit();
   }
   else
   {
     mcp.digitalWrite(CH2, Status_CH2);
-    Serial.println("CH2 = "+ String(Status_CH2));
+    Serial.println("CH2 = " + String(Status_CH2));
     EEPROM.write(addrRelay2, 0);
+    EEPROM.commit();
+  }
+}
+
+BLYNK_WRITE(V5)
+{ // Map this Virtual Pin to your  Mobile Blynk apps widget.
+  Status_CH3 = param.asInt();
+
+  if (Status_CH3 == 1)
+  {
+    mcp.digitalWrite(CH3, Status_CH3);
+    Serial.println("CH3 = " + String(Status_CH3));
+    EEPROM.write(addrRelay3, 1);
+    EEPROM.commit();
+  }
+  else
+  {
+    mcp.digitalWrite(CH3, Status_CH3);
+    Serial.println("CH3 = " + String(Status_CH3));
+    EEPROM.write(addrRelay3, 0);
     EEPROM.commit();
   }
 }
@@ -157,7 +180,10 @@ void checkPhysicalButton()
   btnPinState_SW1_2 = mcp.digitalRead(sw1_2);
   btnPinState_SW2_1 = mcp.digitalRead(sw2_1);
   btnPinState_SW2_2 = mcp.digitalRead(sw2_2);
+  btnPinState_SW3_1 = mcp.digitalRead(sw3_1);
+  btnPinState_SW3_2 = mcp.digitalRead(sw3_2);
 
+  //************************************* Switch 1 ************************************//
   if (!is_boot1)
   {
 
@@ -218,6 +244,7 @@ void checkPhysicalButton()
     }
   }
 
+  //************************************* Switch 2 ************************************//
   if (!is_boot2)
   {
 
@@ -276,13 +303,76 @@ void checkPhysicalButton()
     }
   }
 
+  //************************************* Switch 3 ************************************//
+
+  if (!is_boot3)
+  {
+
+    if (btnPinState_SW3_1 != lastButtonState_SW3_1)
+    {
+      if (btnPinState_SW3_1 == LOW)
+      {
+
+        Status_CH3 = !Status_CH3;
+        Blynk.virtualWrite(V5, Status_CH3);
+        if (Status_CH3 == 1)
+        {
+          mcp.digitalWrite(CH3, Status_CH3);
+          EEPROM.write(addrRelay3, 1);
+          EEPROM.commit();
+        }
+        else
+        {
+          mcp.digitalWrite(CH3, Status_CH3);
+          EEPROM.write(addrRelay3, 0);
+          EEPROM.commit();
+        }
+      }
+      else
+      {
+      }
+      // Delay a little bit to avoid bouncing
+      delay(20);
+    }
+
+    if (btnPinState_SW3_2 != lastButtonState_SW3_2)
+    {
+      if (btnPinState_SW3_2 == LOW)
+      {
+
+        Status_CH3 = !Status_CH3;
+        Blynk.virtualWrite(V5, Status_CH3);
+        if (Status_CH3 == 1)
+        {
+          mcp.digitalWrite(CH3, Status_CH3);
+          EEPROM.write(addrRelay3, 1);
+          EEPROM.commit();
+        }
+        else
+        {
+          mcp.digitalWrite(CH3, Status_CH3);
+          EEPROM.write(addrRelay3, 0);
+          EEPROM.commit();
+        }
+      }
+      else
+      {
+      }
+      // Delay a little bit to avoid bouncing
+      delay(20);
+    }
+  }
+
   lastButtonState_SW1_1 = btnPinState_SW1_1;
   lastButtonState_SW1_2 = btnPinState_SW1_2;
   lastButtonState_SW2_1 = btnPinState_SW2_1;
   lastButtonState_SW2_2 = btnPinState_SW2_2;
+  lastButtonState_SW3_1 = btnPinState_SW3_1;
+  lastButtonState_SW3_2 = btnPinState_SW3_2;
 
   is_boot1 = false;
   is_boot2 = false;
+  is_boot3 = false;
 }
 
 void config_Pin()
@@ -315,10 +405,11 @@ void config_Pin()
 void read_EEPROM()
 {
   SaveRelay1 = EEPROM.read(addrRelay1);
-  Serial.println("Status_CH1 = "+ String(SaveRelay1));
+  Serial.println("Status_CH1 = " + String(SaveRelay1));
   SaveRelay2 = EEPROM.read(addrRelay2);
-  Serial.println("Status_CH2 = "+ String(SaveRelay2));
+  Serial.println("Status_CH2 = " + String(SaveRelay2));
+  SaveRelay3 = EEPROM.read(addrRelay3);
+  Serial.println("Status_CH3 = " + String(SaveRelay3));
   delay(2000);
-  // SaveRelay3 = EEPROM_read(addrRelay3, 5);
   // SaveRelay4 = EEPROM_read(addrRelay4, 5);
 }
