@@ -1,6 +1,5 @@
 // #define BLYNK_PRINT Serial
 
-#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
 #include <Wire.h>
