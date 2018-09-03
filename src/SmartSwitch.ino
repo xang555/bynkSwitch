@@ -23,6 +23,7 @@ bool connectBlynk()
   return wifiClient.connect(BLYNK_DEFAULT_DOMAIN, BLYNK_DEFAULT_PORT);
 }
 
+
 // This function tries to connect to your WiFi network
 void connectWiFi()
 {
