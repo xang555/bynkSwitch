@@ -6,6 +6,9 @@
 #define CH3 5
 #define CH4 4
 
+/************** input String  ****************/
+String textIn_CH1;
+
 /************** Pins Switch INPUT ****************/
 byte sw1_1 = 15;
 byte sw1_2 = 14;

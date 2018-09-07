@@ -45,6 +45,7 @@ void connectWiFi()
     Serial.print(".");
     checkPhysicalButton();
   }
+  Serial.println();
 }
 
 void setup()
@@ -75,7 +76,7 @@ void setup()
   connectWiFi();
   connectBlynk();
   Blynk.begin(auth, ssid, pass);
-  timer.setInterval(50L, checkPhysicalButton);
+  timer.setInterval(100L, checkPhysicalButton);
 }
 
 BLYNK_CONNECTED()
@@ -118,6 +119,7 @@ BLYNK_WRITE(V2)
   if (Status_CH2 == 1)
   {
     mcp.digitalWrite(CH2, Status_CH2);
+    Blynk.notify("Light Makeroom On! ");
     Serial.println("CH2 = " + String(Status_CH2));
     EEPROM.write(addrRelay2, 1);
   }
