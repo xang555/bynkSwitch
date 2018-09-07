@@ -7,7 +7,7 @@
 #include "Adafruit_MCP23017.h"
 #include "Registor.h"
 
-char auth[] = "e45fa5940c20455b9d492a47af01aac4";
+char auth[] = "66299ff248054845b7d2056dac05bf34";
 char ssid[] = "Tock";
 char pass[] = "12345678";
 
@@ -52,7 +52,7 @@ void setup()
 
   Serial.begin(115200); //Start serial for output
   EEPROM.begin(512);
-  mcp.begin(1); // use default address 0
+  mcp.begin(); // use default address 0
   delay(100);
   Serial.println();
   read_EEPROM();
@@ -81,18 +81,18 @@ void setup()
 BLYNK_CONNECTED()
 {
   // Alternatively, you could override server state using:
-  Blynk.virtualWrite(V3, Status_CH1);
-  Blynk.virtualWrite(V4, Status_CH2);
-  Blynk.virtualWrite(V5, Status_CH3);
-  Blynk.virtualWrite(V6, Status_CH4);
+  Blynk.virtualWrite(V1, Status_CH1);
+  Blynk.virtualWrite(V2, Status_CH2);
+  Blynk.virtualWrite(V3, Status_CH3);
+  Blynk.virtualWrite(V4, Status_CH4);
+  Blynk.syncVirtual(V1);
+  Blynk.syncVirtual(V2);
   Blynk.syncVirtual(V3);
   Blynk.syncVirtual(V4);
-  Blynk.syncVirtual(V5);
-  Blynk.syncVirtual(V6);
 
 }
 
-BLYNK_WRITE(V3)
+BLYNK_WRITE(V1)
 { // Map this Virtual Pin to your  Mobile Blynk apps widget.
   Status_CH1 = param.asInt();
 
@@ -111,7 +111,7 @@ BLYNK_WRITE(V3)
   EEPROM.commit();
 }
 
-BLYNK_WRITE(V4)
+BLYNK_WRITE(V2)
 { // Map this Virtual Pin to your  Mobile Blynk apps widget.
   Status_CH2 = param.asInt();
 
@@ -130,7 +130,7 @@ BLYNK_WRITE(V4)
   EEPROM.commit();
 }
 
-BLYNK_WRITE(V5)
+BLYNK_WRITE(V3)
 { // Map this Virtual Pin to your  Mobile Blynk apps widget.
   Status_CH3 = param.asInt();
 
@@ -149,7 +149,7 @@ BLYNK_WRITE(V5)
   EEPROM.commit();
 }
 
-BLYNK_WRITE(V6)
+BLYNK_WRITE(V4)
 { // Map this Virtual Pin to your  Mobile Blynk apps widget.
   Status_CH4 = param.asInt();
 
@@ -211,7 +211,7 @@ void checkPhysicalButton()
       {
 
         Status_CH1 = !Status_CH1;
-        Blynk.virtualWrite(V3, Status_CH1);
+        Blynk.virtualWrite(V1, Status_CH1);
 
         if (Status_CH1 == 1)
         {
@@ -239,7 +239,7 @@ void checkPhysicalButton()
       {
 
         Status_CH1 = !Status_CH1;
-        Blynk.virtualWrite(V3, Status_CH1);
+        Blynk.virtualWrite(V1, Status_CH1);
 
         if (Status_CH1 == 1)
         {
@@ -272,7 +272,7 @@ void checkPhysicalButton()
       {
 
         Status_CH2 = !Status_CH2;
-        Blynk.virtualWrite(V4, Status_CH2);
+        Blynk.virtualWrite(V2, Status_CH2);
         if (Status_CH2 == 1)
         {
           mcp.digitalWrite(CH2, Status_CH2);
@@ -299,7 +299,7 @@ void checkPhysicalButton()
       {
 
         Status_CH2 = !Status_CH2;
-        Blynk.virtualWrite(V4, Status_CH2);
+        Blynk.virtualWrite(V2, Status_CH2);
         if (Status_CH2 == 1)
         {
           mcp.digitalWrite(CH2, Status_CH2);
@@ -332,7 +332,7 @@ void checkPhysicalButton()
       {
 
         Status_CH3 = !Status_CH3;
-        Blynk.virtualWrite(V5, Status_CH3);
+        Blynk.virtualWrite(V3, Status_CH3);
         if (Status_CH3 == 1)
         {
           mcp.digitalWrite(CH3, Status_CH3);
@@ -359,7 +359,7 @@ void checkPhysicalButton()
       {
 
         Status_CH3 = !Status_CH3;
-        Blynk.virtualWrite(V5, Status_CH3);
+        Blynk.virtualWrite(V3, Status_CH3);
         if (Status_CH3 == 1)
         {
           mcp.digitalWrite(CH3, Status_CH3);
@@ -392,7 +392,7 @@ void checkPhysicalButton()
       {
 
         Status_CH4 = !Status_CH4;
-        Blynk.virtualWrite(V6, Status_CH4);
+        Blynk.virtualWrite(V4, Status_CH4);
         if (Status_CH4 == 1)
         {
           mcp.digitalWrite(CH4, Status_CH4);
@@ -419,7 +419,7 @@ void checkPhysicalButton()
       {
 
         Status_CH4 = !Status_CH4;
-        Blynk.virtualWrite(V6, Status_CH4);
+        Blynk.virtualWrite(V4, Status_CH4);
         if (Status_CH4 == 1)
         {
           mcp.digitalWrite(CH4, Status_CH4);
