@@ -1,4 +1,5 @@
 // #define BLYNK_PRINT Serial
+//#define DEV_Mode 
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
@@ -7,9 +8,12 @@
 #include "Adafruit_MCP23017.h"
 #include "Registor.h"
 
-char auth[] = "66299ff248054845b7d2056dac05bf34";
+char auth[] = "d08229493cc74c43a109e212577a358d";
 char ssid[] = "Tock";
 char pass[] = "12345678";
+char My_DOMAIN[] = "35.185.133.72";
+#define My_PORT 9443
+#define Connect__WiFi 2
 
 SimpleTimer timer;
 Adafruit_MCP23017 mcp;
@@ -20,15 +24,19 @@ WiFiClient wifiClient;
 bool connectBlynk()
 {
   wifiClient.stop();
-  return wifiClient.connect(BLYNK_DEFAULT_DOMAIN, BLYNK_DEFAULT_PORT);
+  // return wifiClient.connect(BLYNK_DEFAULT_DOMAIN, BLYNK_DEFAULT_PORT);
+  return wifiClient.connect(My_DOMAIN, My_PORT);
 }
 
 
 // This function tries to connect to your WiFi network
 void connectWiFi()
 {
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
+  #ifdef DEV_Mode
+      Serial.print("Connecting to ");
+      Serial.println(ssid);
+  #endif
+  
 
   if (pass && strlen(pass))
   {
@@ -41,11 +49,16 @@ void connectWiFi()
 
   while (WiFi.status() != WL_CONNECTED)
   {
+    digitalWrite(Connect__WiFi, LOW);
     delay(100);
-    Serial.print(".");
+    #ifdef DEV_Mode
+        Serial.print(".");
+    #endif
     checkPhysicalButton();
   }
-  Serial.println();
+  #ifdef DEV_Mode
+      Serial.println();
+  #endif
 }
 
 void setup()
@@ -55,12 +68,16 @@ void setup()
   EEPROM.begin(512);
   mcp.begin(); // use default address 0
   delay(100);
-  Serial.println();
+  #ifdef DEV_Mode
+      Serial.println();
+      Serial.println();
+      Serial.println();
+  #endif
+  
   read_EEPROM();
   delay(100);
-  Serial.println();
-  Serial.println();
-  Serial.println();
+  
+  pinMode(Connect__WiFi, OUTPUT);
   config_Pin();
 
   Status_CH1 = SaveRelay1 == 1 ? 1 : 0;
@@ -75,7 +92,7 @@ void setup()
 
   connectWiFi();
   connectBlynk();
-  Blynk.begin(auth, ssid, pass);
+  Blynk.begin(auth, ssid, pass, My_DOMAIN, 8080);
   timer.setInterval(100L, checkPhysicalButton);
 }
 
@@ -100,13 +117,18 @@ BLYNK_WRITE(V1)
   if (Status_CH1 == 1)
   {
     mcp.digitalWrite(CH1, Status_CH1);
-    Serial.println("CH1 = " + String(Status_CH1));
+    #ifdef DEV_Mode
+        Serial.println("CH1 = " + String(Status_CH1));
+    #endif
+    
     EEPROM.write(addrRelay1, 1);
   }
   else
   {
     mcp.digitalWrite(CH1, Status_CH1);
-    Serial.println("CH1 = " + String(Status_CH1));
+    #ifdef DEV_Mode
+        Serial.println("CH1 = " + String(Status_CH1));
+    #endif
     EEPROM.write(addrRelay1, 0);
   }
   EEPROM.commit();
@@ -119,14 +141,17 @@ BLYNK_WRITE(V2)
   if (Status_CH2 == 1)
   {
     mcp.digitalWrite(CH2, Status_CH2);
-    Blynk.notify("Light Makeroom On! ");
-    Serial.println("CH2 = " + String(Status_CH2));
+    #ifdef DEV_Mode
+        Serial.println("CH2 = " + String(Status_CH2));
+    #endif
     EEPROM.write(addrRelay2, 1);
   }
   else
   {
     mcp.digitalWrite(CH2, Status_CH2);
-    Serial.println("CH2 = " + String(Status_CH2));
+    #ifdef DEV_Mode
+        Serial.println("CH2 = " + String(Status_CH2));
+    #endif
     EEPROM.write(addrRelay2, 0);
   }
   EEPROM.commit();
@@ -139,13 +164,17 @@ BLYNK_WRITE(V3)
   if (Status_CH3 == 1)
   {
     mcp.digitalWrite(CH3, Status_CH3);
-    Serial.println("CH3 = " + String(Status_CH3));
+    #ifdef DEV_Mode
+        Serial.println("CH3 = " + String(Status_CH3));
+    #endif
     EEPROM.write(addrRelay3, 1);
   }
   else
   {
     mcp.digitalWrite(CH3, Status_CH3);
-    Serial.println("CH3 = " + String(Status_CH3));
+    #ifdef DEV_Mode
+        Serial.println("CH3 = " + String(Status_CH3));
+    #endif
     EEPROM.write(addrRelay3, 0);
   }
   EEPROM.commit();
@@ -158,13 +187,17 @@ BLYNK_WRITE(V4)
   if (Status_CH4 == 1)
   {
     mcp.digitalWrite(CH4, Status_CH4);
-    Serial.println("CH4 = " + String(Status_CH4));
+    #ifdef DEV_Mode
+        Serial.println("CH4 = " + String(Status_CH4));
+    #endif
     EEPROM.write(addrRelay4, 1);
   }
   else
   {
     mcp.digitalWrite(CH4, Status_CH4);
-    Serial.println("CH4 = " + String(Status_CH4));
+    #ifdef DEV_Mode
+        Serial.println("CH4 = " + String(Status_CH4));
+    #endif
     EEPROM.write(addrRelay4, 0);
   }
   EEPROM.commit();
@@ -172,7 +205,6 @@ BLYNK_WRITE(V4)
 
 void loop()
 {
-
   // Reconnect WiFi
   if (WiFi.status() != WL_CONNECTED)
   {
@@ -189,6 +221,8 @@ void loop()
 
   Blynk.run();
   timer.run();
+  digitalWrite(Connect__WiFi, HIGH);
+
 }
 
 void checkPhysicalButton()
@@ -232,7 +266,7 @@ void checkPhysicalButton()
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(20);
+      delay(50);
     }
 
     if (btnPinState_SW1_2 != lastButtonState_SW1_2)
@@ -260,7 +294,7 @@ void checkPhysicalButton()
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(20);
+      delay(50);
     }
   }
 
@@ -292,7 +326,7 @@ void checkPhysicalButton()
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(20);
+      delay(50);
     }
 
     if (btnPinState_SW2_2 != lastButtonState_SW2_2)
@@ -319,7 +353,7 @@ void checkPhysicalButton()
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(20);
+      delay(50);
     }
   }
 
@@ -352,7 +386,7 @@ void checkPhysicalButton()
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(20);
+      delay(50);
     }
 
     if (btnPinState_SW3_2 != lastButtonState_SW3_2)
@@ -379,7 +413,7 @@ void checkPhysicalButton()
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(20);
+      delay(50);
     }
   }
 
@@ -412,7 +446,7 @@ void checkPhysicalButton()
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(20);
+      delay(50);
     }
 
     if (btnPinState_SW4_2 != lastButtonState_SW4_2)
@@ -439,7 +473,7 @@ void checkPhysicalButton()
       {
       }
       // Delay a little bit to avoid bouncing
-      delay(20);
+      delay(50);
     }
   }
 
@@ -488,13 +522,17 @@ void config_Pin()
 void read_EEPROM()
 {
   SaveRelay1 = EEPROM.read(addrRelay1);
-  Serial.println("Status_CH1 = " + String(SaveRelay1));
   SaveRelay2 = EEPROM.read(addrRelay2);
-  Serial.println("Status_CH2 = " + String(SaveRelay2));
   SaveRelay3 = EEPROM.read(addrRelay3);
-  Serial.println("Status_CH3 = " + String(SaveRelay3));
   SaveRelay4 = EEPROM.read(addrRelay4);
-  Serial.println("Status_CH4 = " + String(SaveRelay4));
+
+  #ifdef DEV_Mode
+      Serial.println("Status_CH1 = " + String(SaveRelay1));
+      Serial.println("Status_CH2 = " + String(SaveRelay2));
+      Serial.println("Status_CH3 = " + String(SaveRelay3));
+      Serial.println("Status_CH4 = " + String(SaveRelay4));
+  #endif
+
   delay(2000);
 
 }
