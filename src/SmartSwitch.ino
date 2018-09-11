@@ -1,29 +1,37 @@
 // #define BLYNK_PRINT Serial
-//#define DEV_Mode 
+// #define DEV_Mode 
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>
 #include <Wire.h>
 #include <EEPROM.h>
 #include "Adafruit_MCP23017.h"
 #include "Registor.h"
 
-char auth[] = "d08229493cc74c43a109e212577a358d";
-char ssid[] = "Tock";
-char pass[] = "12345678";
+char auth[] = "6d5bec46e90f41379531b46b4e9cfa1f";
+char ssid[] = "TOCK-95";
+char pass[] = "02076993003";
 char My_DOMAIN[] = "35.185.133.72";
 #define My_PORT 9443
 #define Connect__WiFi 2
+#define ConfigWiFi_Pin 12
 
 SimpleTimer timer;
 Adafruit_MCP23017 mcp;
 
 WiFiClient wifiClient;
 
+#define ESP_AP_NAME "WiFI Config"
+
+int counter = 0;
+
 // This function tries to connect to the cloud using TCP
 bool connectBlynk()
 {
-  wifiClient.stop();
+  // wifiClient.stop();
   // return wifiClient.connect(BLYNK_DEFAULT_DOMAIN, BLYNK_DEFAULT_PORT);
   return wifiClient.connect(My_DOMAIN, My_PORT);
 }
@@ -32,33 +40,25 @@ bool connectBlynk()
 // This function tries to connect to your WiFi network
 void connectWiFi()
 {
-  #ifdef DEV_Mode
-      Serial.print("Connecting to ");
-      Serial.println(ssid);
-  #endif
-  
+  // Serial.print("Connecting to ");
+  // Serial.println(ssid);
 
-  if (pass && strlen(pass))
-  {
-    WiFi.begin((char *)ssid, (char *)pass);
-  }
-  else
-  {
-    WiFi.begin((char *)ssid);
-  }
+  // if (pass && strlen(pass))
+  // {
+  //   WiFi.begin((char *)ssid, (char *)pass);
+  // }
+  // else
+  // {
+  //   WiFi.begin((char *)ssid);
+  // }
 
   while (WiFi.status() != WL_CONNECTED)
   {
-    digitalWrite(Connect__WiFi, LOW);
     delay(100);
-    #ifdef DEV_Mode
-        Serial.print(".");
-    #endif
+    Serial.print(".");
     checkPhysicalButton();
   }
-  #ifdef DEV_Mode
-      Serial.println();
-  #endif
+  Serial.println();
 }
 
 void setup()
@@ -68,31 +68,50 @@ void setup()
   EEPROM.begin(512);
   mcp.begin(); // use default address 0
   delay(100);
-  #ifdef DEV_Mode
-      Serial.println();
-      Serial.println();
-      Serial.println();
-  #endif
+  Serial.println();
+  Serial.println();
+  Serial.println();
+
   
   read_EEPROM();
   delay(100);
   
   pinMode(Connect__WiFi, OUTPUT);
+  pinMode(ConfigWiFi_Pin, INPUT_PULLUP);
   config_Pin();
+  digitalWrite(Connect__WiFi, LOW);
 
   Status_CH1 = SaveRelay1 == 1 ? 1 : 0;
   Status_CH2 = SaveRelay2 == 1 ? 1 : 0;
   Status_CH3 = SaveRelay3 == 1 ? 1 : 0;
   Status_CH4 = SaveRelay4 == 1 ? 1 : 0;
 
+  WiFiManager wifiManager;
+  while (digitalRead(ConfigWiFi_Pin) == LOW) // Press button
+  {
+    counter++;
+
+    if (counter == 200) {
+      //reset saved settings
+    wifiManager.resetSettings(); // goto ip 192.168.4.1 to config
+    wifiManager.autoConnect(ESP_AP_NAME);
+    counter=0;
+    }
+    
+  }
+
+  connectWiFi();
+  connectBlynk();
+  Serial.println(WiFi.SSID());
+  Serial.println(WiFi.psk());
+
   mcp.digitalWrite(CH1, Status_CH1);
   mcp.digitalWrite(CH2, Status_CH2);
   mcp.digitalWrite(CH3, Status_CH3);
   mcp.digitalWrite(CH4, Status_CH4);
 
-  connectWiFi();
-  connectBlynk();
-  Blynk.begin(auth, ssid, pass, My_DOMAIN, 8080);
+
+  Blynk.begin(auth, WiFi.SSID().c_str(), WiFi.psk().c_str(), My_DOMAIN, 8080);
   timer.setInterval(100L, checkPhysicalButton);
 }
 
@@ -122,6 +141,7 @@ BLYNK_WRITE(V1)
     #endif
     
     EEPROM.write(addrRelay1, 1);
+    EEPROM.commit();
   }
   else
   {
@@ -130,8 +150,9 @@ BLYNK_WRITE(V1)
         Serial.println("CH1 = " + String(Status_CH1));
     #endif
     EEPROM.write(addrRelay1, 0);
+    EEPROM.commit();
   }
-  EEPROM.commit();
+  
 }
 
 BLYNK_WRITE(V2)
@@ -145,6 +166,7 @@ BLYNK_WRITE(V2)
         Serial.println("CH2 = " + String(Status_CH2));
     #endif
     EEPROM.write(addrRelay2, 1);
+    EEPROM.commit();
   }
   else
   {
@@ -153,8 +175,9 @@ BLYNK_WRITE(V2)
         Serial.println("CH2 = " + String(Status_CH2));
     #endif
     EEPROM.write(addrRelay2, 0);
+    EEPROM.commit();
   }
-  EEPROM.commit();
+  
 }
 
 BLYNK_WRITE(V3)
@@ -168,6 +191,7 @@ BLYNK_WRITE(V3)
         Serial.println("CH3 = " + String(Status_CH3));
     #endif
     EEPROM.write(addrRelay3, 1);
+    EEPROM.commit();
   }
   else
   {
@@ -176,8 +200,9 @@ BLYNK_WRITE(V3)
         Serial.println("CH3 = " + String(Status_CH3));
     #endif
     EEPROM.write(addrRelay3, 0);
+    EEPROM.commit();
   }
-  EEPROM.commit();
+  
 }
 
 BLYNK_WRITE(V4)
@@ -191,6 +216,7 @@ BLYNK_WRITE(V4)
         Serial.println("CH4 = " + String(Status_CH4));
     #endif
     EEPROM.write(addrRelay4, 1);
+    EEPROM.commit();
   }
   else
   {
@@ -199,8 +225,9 @@ BLYNK_WRITE(V4)
         Serial.println("CH4 = " + String(Status_CH4));
     #endif
     EEPROM.write(addrRelay4, 0);
+    EEPROM.commit();
   }
-  EEPROM.commit();
+  
 }
 
 void loop()
