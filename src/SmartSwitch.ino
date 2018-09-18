@@ -1,5 +1,5 @@
-// #define BLYNK_PRINT Serial
-// #define DEV_Mode 
+#define BLYNK_PRINT Serial
+#define DEV_Mode 
 
 #include <ESP8266WiFi.h>
 #include <BlynkSimpleEsp8266.h>
@@ -32,6 +32,7 @@ int counter = 0;
 // This function tries to connect to the cloud using TCP
 bool connectBlynk()
 {
+  checkPhysicalButton();
   wifiClient.stop();
   // return wifiClient.connect(BLYNK_DEFAULT_DOMAIN, BLYNK_DEFAULT_PORT);
   return wifiClient.connect(My_DOMAIN, My_PORT);
@@ -250,6 +251,7 @@ void loop()
   Blynk.run();
   timer.run();
   digitalWrite(Connect__WiFi, HIGH);
+  
 
 }
 
