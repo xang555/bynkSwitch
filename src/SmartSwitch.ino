@@ -15,6 +15,7 @@ char auth[] = "6d5bec46e90f41379531b46b4e9cfa1f";
 char ssid[] = "TOCK-95";
 char pass[] = "02076993003";
 char My_DOMAIN[] = "35.185.133.72";
+
 #define My_PORT 9443
 #define Connect__WiFi 2
 #define ConfigWiFi_Pin 12
@@ -31,7 +32,7 @@ int counter = 0;
 // This function tries to connect to the cloud using TCP
 bool connectBlynk()
 {
-  // wifiClient.stop();
+  wifiClient.stop();
   // return wifiClient.connect(BLYNK_DEFAULT_DOMAIN, BLYNK_DEFAULT_PORT);
   return wifiClient.connect(My_DOMAIN, My_PORT);
 }
