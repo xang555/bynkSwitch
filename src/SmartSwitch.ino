@@ -14,7 +14,7 @@
 char auth[] = "6d5bec46e90f41379531b46b4e9cfa1f";
 // char ssid[] = "TOCK-95";
 // char pass[] = "02076993003";
-char My_DOMAIN[] = "35.185.133.72";
+char My_DOMAIN[] = "cloud.laoio.la";
 
 #define My_PORT 8080
 #define Connect__WiFi 2
