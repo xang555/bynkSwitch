@@ -16,7 +16,7 @@ char auth[] = "6d5bec46e90f41379531b46b4e9cfa1f";
 // char pass[] = "02076993003";
 char My_DOMAIN[] = "35.185.133.72";
 
-#define My_PORT 9443
+#define My_PORT 8080
 #define Connect__WiFi 2
 #define ConfigWiFi_Pin 12
 
