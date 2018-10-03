@@ -12,8 +12,8 @@
 #include "Registor.h"
 
 char auth[] = "6d5bec46e90f41379531b46b4e9cfa1f";
-char ssid[] = "TOCK-95";
-char pass[] = "02076993003";
+// char ssid[] = "TOCK-95";
+// char pass[] = "02076993003";
 char My_DOMAIN[] = "35.185.133.72";
 
 #define My_PORT 9443
@@ -81,19 +81,31 @@ void setup()
   pinMode(Connect__WiFi, OUTPUT);
   pinMode(ConfigWiFi_Pin, INPUT_PULLUP);
   config_Pin();
-  digitalWrite(Connect__WiFi, LOW);
 
   Status_CH1 = SaveRelay1 == 1 ? 1 : 0;
   Status_CH2 = SaveRelay2 == 1 ? 1 : 0;
   Status_CH3 = SaveRelay3 == 1 ? 1 : 0;
   Status_CH4 = SaveRelay4 == 1 ? 1 : 0;
 
-  WiFiManager wifiManager;
+  
   while (digitalRead(ConfigWiFi_Pin) == LOW) // Press button
   {
     counter++;
 
     if (counter == 200) {
+    WiFiManager wifiManager;
+    digitalWrite(Connect__WiFi, HIGH);
+    delay(100);
+    digitalWrite(Connect__WiFi, LOW);
+    delay(100);
+    digitalWrite(Connect__WiFi, HIGH);
+    delay(100);
+    digitalWrite(Connect__WiFi, LOW);
+    delay(100);
+    digitalWrite(Connect__WiFi, HIGH);
+    delay(100);
+    digitalWrite(Connect__WiFi, LOW);
+    delay(100);
       //reset saved settings
     wifiManager.resetSettings(); // goto ip 192.168.4.1 to config
     wifiManager.autoConnect(ESP_AP_NAME);
